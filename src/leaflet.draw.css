@@ -314,7 +314,18 @@
 }
 
 .leaflet-edit-resize {
-    cursor: pointer;
+    cursor: ne-resize;
+}
+
+.leaflet-circle-center {
+    border-radius: 50%;
+}
+
+.leaflet-middle-marker {
+    cursor: copy;
+    background: transparent;
+    opacity: 1 !important;
+    border: 2px dashed #4caf50;
 }
 
 /* ================================================================== */

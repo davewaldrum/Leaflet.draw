@@ -21,6 +21,8 @@ L.Edit.CircleMarker = L.Edit.SimpleShape.extend({
 				var resizemarkerPoint = this._getResizeMarkerPoint(latlng);
 				// Move the resize marker
 				this._resizeMarkers[0].setLatLng(resizemarkerPoint);
+
+				this._tooltip.updatePosition(resizemarkerPoint);
 		}
 
 		// Move the circle

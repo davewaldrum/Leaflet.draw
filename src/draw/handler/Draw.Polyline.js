@@ -302,7 +302,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
             if(this.options.maxPoints > 1 && this.options.maxPoints == this._markers.length+1) {
                 this.addVertex(e.latlng);
                 this._finishShape();
-            } else if (lastPtDistance < 10 && L.Browser.touch) {
+            } else if (lastPtDistance < 10) {
 				this._finishShape();
 			} else if (Math.abs(dragCheckDistance) < 9 * (window.devicePixelRatio || 1)) {
 				this.addVertex(e.latlng);

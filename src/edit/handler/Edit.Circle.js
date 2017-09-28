@@ -5,6 +5,12 @@ L.Edit = L.Edit || {};
  * @inherits L.Edit.CircleMarker
  */
 L.Edit.Circle = L.Edit.CircleMarker.extend({
+	options: {
+		moveIcon: new L.DivIcon({
+			iconSize: new L.Point(16, 16),
+			className: 'leaflet-div-icon leaflet-editing-icon leaflet-edit-move leaflet-circle-center'
+		}),
+	},
 
 	_createResizeMarker: function () {
 		var center = this._shape.getLatLng(),
@@ -30,6 +36,15 @@ L.Edit.Circle = L.Edit.CircleMarker.extend({
 		} else {
 			radius = this._map.distance(moveLatLng, latlng);
 		}
+
+		this._shape.setRadius(radius);
+
+		this._tooltip.updatePosition(latlng);
+		this._tooltip.updateContent({
+			text: L.drawLocal.edit.handlers.edit.tooltip.subtext + '<br />' + L.drawLocal.edit.handlers.edit.tooltip.text,
+			subtext: L.drawLocal.draw.handlers.circle.radius + ': ' +
+				L.GeometryUtil.readableDistance(radius, true, this.options.feet, this.options.nautic)
+		});
 
 		this._map.fire(L.Draw.Event.EDITRESIZE, { layer: this._shape });
 	}

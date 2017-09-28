@@ -43,6 +43,8 @@ L.Edit.SimpleShape = L.Handler.extend({
 			this._map = this._shape._map;
 			shape.setStyle(shape.options.editing);
 
+			this._tooltip = new L.Draw.Tooltip(this._map);
+
 			if (shape._map) {
 				this._map = shape._map;
 				if (!this._markerGroup) {
@@ -62,14 +64,21 @@ L.Edit.SimpleShape = L.Handler.extend({
 
 		if (shape._map) {
 			this._unbindMarker(this._moveMarker);
+			
+			this._tooltip.dispose();
+			this._tooltip = null;
 
-			for (var i = 0, l = this._resizeMarkers.length; i < l; i++) {
-				this._unbindMarker(this._resizeMarkers[i]);
+			if (this._resizeMarkers) {
+				for (var i = 0, l = this._resizeMarkers.length; i < l; i++) {
+					this._unbindMarker(this._resizeMarkers[i]);
+				}
+				this._resizeMarkers = null;
 			}
-			this._resizeMarkers = null;
 
-			this._map.removeLayer(this._markerGroup);
-			delete this._markerGroup;
+			if (this._markerGroup) {
+				this._map.removeLayer(this._markerGroup);
+				delete this._markerGroup;
+			}
 		}
 
 		this._map = null;

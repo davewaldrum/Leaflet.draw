@@ -88,6 +88,10 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 			iconSize: new L.Point(8, 8),
 			className: 'leaflet-div-icon leaflet-editing-icon'
 		}),
+		middle_icon: new L.DivIcon({
+			iconSize: new L.Point(8, 8),
+			className: 'leaflet-div-icon leaflet-editing-icon leaflet-middle-marker'
+		}),
 		touchIcon: new L.DivIcon({
 			iconSize: new L.Point(20, 20),
 			className: 'leaflet-div-icon leaflet-editing-icon leaflet-touch-icon'
@@ -183,7 +187,7 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 
 		for (i = 0, len = latlngs.length; i < len; i++) {
 
-			marker = this._createMarker(latlngs[i], i);
+			marker = this._createMarker(latlngs[i], i, this.options.icon);
 			marker.on('click', this._onMarkerClick, this);
 			this._markers.push(marker);
 		}
@@ -203,11 +207,11 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 		}
 	},
 
-	_createMarker: function (latlng, index) {
+	_createMarker: function (latlng, index, icon) {
 		// Extending L.Marker in TouchEvents.js to include touch.
 		var marker = new L.Marker.Touch(latlng, {
 			draggable: true,
-			icon: this.options.icon,
+			icon: icon,
 		});
 
 		marker._origLatLng = latlng;
@@ -384,7 +388,7 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 
 	_createMiddleMarker: function (marker1, marker2) {
 		var latlng = this._getMiddleLatLng(marker1, marker2),
-			marker = this._createMarker(latlng),
+			marker = this._createMarker(latlng, null, this.options.middle_icon),
 			onClick,
 			onDragStart,
 			onDragEnd;
@@ -409,6 +413,11 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 			this._markers.splice(i, 0, marker);
 
 			marker.setOpacity(1);
+			console.log("Should remove class here");
+			console.log(marker);
+			if (L.DomUtil.hasClass(marker._icon, 'leaflet-middle-marker')) {
+				L.DomUtil.removeClass(marker._icon, 'leaflet-middle-marker');
+			}
 
 			this._updateIndexes(i, 1);
 			marker2._index++;
