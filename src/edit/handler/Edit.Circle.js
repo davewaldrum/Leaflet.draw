@@ -12,6 +12,16 @@ L.Edit.Circle = L.Edit.CircleMarker.extend({
 		}),
 	},
 
+	initialize: function (shape, options) {
+		console.log("INITIALIZING CIRCLE EDIT", shape);
+
+		if (shape.item) {
+			this._drawOptions = shape.item.drawOptions;
+		}
+
+		L.Edit.SimpleShape.prototype.initialize.call(this, shape, options);
+	},
+
 	_createResizeMarker: function () {
 		var center = this._shape.getLatLng(),
 			resizemarkerPoint = this._getResizeMarkerPoint(center);
@@ -28,6 +38,8 @@ L.Edit.Circle = L.Edit.CircleMarker.extend({
 	},
 
 	_resize: function (latlng) {
+		console.log(_this.drawOptions);
+
 		var moveLatLng = this._moveMarker.getLatLng();
 
 		// Calculate the radius based on the version
