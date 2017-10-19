@@ -53,6 +53,10 @@ L.Edit.SimpleShape = L.Handler.extend({
 				this._map.addLayer(this._markerGroup);
 			}
 		}
+
+		if (shape.item != undefined) {
+			this._drawOptions = $.extend({}, shape.item.drawer.options);
+		}
 	},
 
 	// @method removeHooks(): void
@@ -65,7 +69,9 @@ L.Edit.SimpleShape = L.Handler.extend({
 		if (shape._map) {
 			this._unbindMarker(this._moveMarker);
 			
-			this._tooltip.dispose();
+			if (this._tooltip) {
+				this._tooltip.dispose();
+			}
 			this._tooltip = null;
 
 			if (this._resizeMarkers) {
@@ -167,9 +173,9 @@ L.Edit.SimpleShape = L.Handler.extend({
 			latlng = marker.getLatLng();
 
 		if (marker === this._moveMarker) {
-			this._move(latlng);
+			this._move(latlng, e);
 		} else {
-			this._resize(latlng);
+			this._resize(latlng, e);
 		}
 
 		this._shape.redraw();

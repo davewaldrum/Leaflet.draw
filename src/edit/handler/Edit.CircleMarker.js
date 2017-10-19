@@ -17,19 +17,23 @@ L.Edit.CircleMarker = L.Edit.SimpleShape.extend({
 	},
 
 	_move: function (latlng) {
-		if (this._resizeMarkers.length) {
-				var resizemarkerPoint = this._getResizeMarkerPoint(latlng);
-				// Move the resize marker
-				this._resizeMarkers[0].setLatLng(resizemarkerPoint);
-
-				this._tooltip.updatePosition(resizemarkerPoint);
-		}
+		this._positionResizeMarker(latlng);
 
 		// Move the circle
 		this._shape.setLatLng(latlng);
 
 		this._map.fire(L.Draw.Event.EDITMOVE, { layer: this._shape });
 	},
+
+	_positionResizeMarker: function(latlng) {
+		if (this._resizeMarkers.length) {
+			var resizemarkerPoint = this._getResizeMarkerPoint(latlng);
+			// Move the resize marker
+			this._resizeMarkers[0].setLatLng(resizemarkerPoint);
+
+			this._tooltip.updatePosition(resizemarkerPoint);
+		}
+	}
 });
 
 L.CircleMarker.addInitHook(function () {

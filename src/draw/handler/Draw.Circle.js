@@ -66,7 +66,6 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 		}
 
 		if (!this._shape && distance > 0) {
-			console.log("No shape, distance is", distance);
 			this._shape = new L.Circle(this._startLatLng, distance, this.options.shapeOptions);
 			this._map.addLayer(this._shape);
 		} else if (this._shape) {
@@ -76,7 +75,6 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 
 	_fireCreatedEvent: function () {
 		if (this._shape.getRadius() == 0) {
-			console.log("Trying to create an empty circle");
 			this._map.removeLayer(this._shape);
 			delete this._shape;
 			return;
@@ -86,7 +84,6 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 		L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this, circle);
 	},
 
-
 	_getTooltipText: function () {
 		if (this.options.snapRadiusOnCtrl) {
 			return "Hold CTRL to snap. " + this._endLabelText;
@@ -94,7 +91,6 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 			return this._endLabelText;
 		}
 	},
-
 
 	_onMouseMove: function (e) {
 		var latlng = e.latlng,
@@ -116,10 +112,11 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 			if (this.options.snapRadiusOnCtrl && ctrlKey) {
 				var oldradius = radius;
 				var radius = this._snapRadius(radius);
-				console.log(oldradius, ctrlKey, radius);
-
-				this._shape.setRadius(radius);
 			}
+
+			radius = this._enforceSize(radius);
+
+			this._shape.setRadius(radius);
 
 			var subtext = '';
 			if (showRadius) {
@@ -131,6 +128,16 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 				subtext: subtext
 			});
 		}
+	},
+
+	_enforceSize: function(radius) {
+		if (this.options.minRadius != 0 && radius < this.options.minRadius) {
+			radius = this.options.minRadius;
+		} else if (this.options.maxRadius != 0 && radius > this.options.maxRadius) {
+			radius = this.options.maxRadius;
+		}
+
+		return parseFloat(radius);
 	},
 
 	_incrementForZoom: function (zoom) {
