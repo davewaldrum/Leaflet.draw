@@ -23,6 +23,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 		}
 
 		this._uneditedLayerProps = {};
+		this._draggingMarker = false;
 
 		// Save the type so super can fire, need to do this as cannot do this.TYPE :(
 		this.type = L.EditToolbar.Edit.TYPE;
@@ -209,13 +210,19 @@ L.EditToolbar.Edit = L.Handler.extend({
 
 		}
 
-		if (layer instanceof L.Marker) {
+		if (layer instanceof L.Circle) {
+			layer.editing.enable();
+			layer
+				.on('editstart', this._onMarkerDragStart, this)
+				.on('edit', this._onMarkerDragEnd, this);
+		} else if (layer instanceof L.Marker) {
 			if (layer.editing) {
 				layer.editing.enable();
 			}
 			layer.dragging.enable();
 			layer
-				.on('dragend', this._onMarkerDragEnd)
+				.on('dragstart', this._onMarkerDragStart, this)
+				.on('dragend', this._onMarkerDragEnd, this)
 				// #TODO: remove when leaflet finally fixes their draggable so it's touch friendly again.
 				.on('touchmove', this._onTouchMove, this)
 				.on('MSPointerMove', this._onTouchMove, this)
@@ -248,9 +255,15 @@ L.EditToolbar.Edit = L.Handler.extend({
 			}
 		}
 
-		if (layer instanceof L.Marker) {
+		if (layer instanceof L.Circle) {
+			layer.editing.enable();
+			layer
+				.off('editstart', this._onMarkerDragStart, this)
+				.off('edit', this._onMarkerDragEnd, this);
+		} else if (layer instanceof L.Marker) {
 			layer.dragging.disable();
 			layer
+				.off('dragstart', this._onMarkerDragStart, this)
 				.off('dragend', this._onMarkerDragEnd, this)
 				.off('touchmove', this._onTouchMove, this)
 				.off('MSPointerMove', this._onTouchMove, this)
@@ -262,13 +275,40 @@ L.EditToolbar.Edit = L.Handler.extend({
 	},
 
 	_onMouseMove: function (e) {
-		this._tooltip.updatePosition(e.latlng);
+		if (!this._draggingMarker) {
+			this._tooltip.updatePosition(e.latlng);
+		}
+	},
+
+	_onMarkerDragStart: function(e) {
+		var layer = e.layer || e.target || e;
+
+		if (layer instanceof L.Circle) {
+			this._originalCirclePosition = layer._latlng;
+		}
+
+		this._tooltip.hide();
+		this._draggingMarker = true;
 	},
 
 	_onMarkerDragEnd: function (e) {
+		var layer = e.layer || e.target || e;
+
+		this._tooltip.show();
+		this._draggingMarker = false;
+
 		var layer = e.target;
 		layer.edited = true;
-		this._map.fire(L.Draw.Event.EDITMOVE, { layer: layer });
+
+		if (layer instanceof L.Circle) {
+			if (this._originalCirclePosition != layer._latlng) {
+				this._map.fire(L.Draw.Event.EDITMOVE, { layer: layer });
+			} else {
+				this._map.fire(L.Draw.Event.EDITRESIZE, { layer: layer });
+			}
+		} else {
+			this._map.fire(L.Draw.Event.EDITMOVE, { layer: layer });			
+		}
 	},
 
 	_onTouchMove: function (e) {

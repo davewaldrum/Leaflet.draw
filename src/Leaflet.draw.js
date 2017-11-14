@@ -175,13 +175,13 @@ L.drawLocal = {
 		handlers: {
 			edit: {
 				tooltip: {
-					text: 'Drag handles or markers to edit features.',
-					subtext: 'Click cancel to undo changes.'
+					text: 'Drag handles or markers to edit proximities.',
+					subtext: 'Edit proximities.'
 				}
 			},
 			remove: {
 				tooltip: {
-					text: 'Click on a feature to remove.'
+					text: 'Click on a proximity to remove.'
 				}
 			}
 		}

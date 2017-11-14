@@ -57,8 +57,6 @@ L.Edit.Circle = L.Edit.CircleMarker.extend({
 		this._shape.setRadius(radius);
 
 		this._positionResizeMarker(moveLatLng);
-
-		console.log('resize');
 		
 		this._tooltip.updateContent({
 			text: this._getTooltipText(),
@@ -67,6 +65,27 @@ L.Edit.Circle = L.Edit.CircleMarker.extend({
 		});
 
 		this._map.fire(L.Draw.Event.EDITRESIZE, { layer: this._shape });
+	},
+
+	_getRadius: function() {
+		return this._shape.getRadius();
+	},
+
+	_move: function(latlng) {
+		this._tooltip.updateContent({
+			text: this._getTooltipText(),
+			subtext: L.drawLocal.draw.handlers.circle.radius + ': ' +
+				L.GeometryUtil.readableDistance(this._getRadius(), true, this.options.feet, this.options.nautic)
+		});
+
+		L.Edit.CircleMarker.prototype._move.call(this, latlng);
+	},
+
+
+	_onMarkerDragEnd: function (e) {
+		L.Edit.SimpleShape.prototype._onMarkerDragEnd.call(this, e);
+
+		this._tooltip.hide();
 	},
 
 	_enforceSize: function(radius) {

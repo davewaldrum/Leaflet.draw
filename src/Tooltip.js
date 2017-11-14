@@ -66,11 +66,9 @@ L.Draw.Tooltip = L.Class.extend({
 			'<span>' + labelText.text + '</span>';
 
 		if (!labelText.text && !labelText.subtext) {
-			this._visible = false;
-			this._container.style.visibility = 'hidden';
+			this.hide();
 		} else {
-			this._visible = true;
-			this._container.style.visibility = 'inherit';
+			this.show();
 		}
 
 		return this;
@@ -83,9 +81,7 @@ L.Draw.Tooltip = L.Class.extend({
 			tooltipContainer = this._container;
 
 		if (this._container) {
-			if (this._visible) {
-				tooltipContainer.style.visibility = 'inherit';
-			}
+			this.show()
 			L.DomUtil.setPosition(tooltipContainer, pos);
 		}
 
@@ -110,9 +106,23 @@ L.Draw.Tooltip = L.Class.extend({
 		return this;
 	},
 
-	_onMouseOut: function () {
+	show: function () {
+		this._visible = true;
+
+		if (this._container) {
+			this._container.style.visibility = 'inherit';
+		}		
+	},
+
+	hide: function () {
+		this._visible = false;
+
 		if (this._container) {
 			this._container.style.visibility = 'hidden';
 		}
+	},
+
+	_onMouseOut: function () {
+		this.hide();
 	}
 });

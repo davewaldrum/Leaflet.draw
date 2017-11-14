@@ -30,9 +30,19 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		// Save a reference to the opposite point
 		var corners = this._getCorners(),
 			marker = e.target,
-			currentCornerIndex = marker._cornerIndex;
+			currentCornerIndex = marker._cornerIndex,
+			bounds = this._shape.getBounds();
 
+		var rectangleWidth = Math.abs(this._map.latLngToLayerPoint(bounds.getNorthEast()).x - this._map.latLngToLayerPoint(bounds.getSouthWest()).x);
+  		var rectangleHeight = Math.abs(this._map.latLngToLayerPoint(bounds.getNorthEast()).y - this._map.latLngToLayerPoint(bounds.getSouthWest()).y);
+
+		this._centerPoint = bounds.getCenter();
+		this._aspectRatio = rectangleWidth / rectangleHeight;
 		this._oppositeCorner = corners[(currentCornerIndex + 2) % 4];
+		this._initialDist = this._centerPoint.distanceTo(marker._latlng);
+		this._cornerIndex = currentCornerIndex;
+
+		this._mouseStartPosition = null;
 
 		this._toggleCornerMarkers(0, currentCornerIndex);
 	},
@@ -76,11 +86,33 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		this._map.fire(L.Draw.Event.EDITMOVE, { layer: this._shape });
 	},
 
-	_resize: function (latlng) {
+	_resize: function (latlng, e) {
+		var ctrlKey = e.originalEvent.ctrlKey;
+		var altKey = e.originalEvent.altKey;
+		var shiftKey = e.originalEvent.shiftKey;
+
 		var bounds;
 
-		// Update the shape based on the current position of this corner and the opposite point
-		this._shape.setBounds(L.latLngBounds(latlng, this._oppositeCorner));
+		var currentMousePos = L.point(e.originalEvent.clientX, e.originalEvent.clientY);
+
+		if (!this._mouseStartPosition) {
+			this._mouseStartPosition = currentMousePos;
+		}
+
+		if (shiftKey) {
+			// TODO: Constrain resizing to aspect ratio
+		}
+
+		if (altKey) {
+			var latDifference = latlng.lat - this._centerPoint.lat;
+			var lngDifference = latlng.lng - this._centerPoint.lng;
+
+			var newCorner = L.latLng(this._centerPoint.lat - latDifference, this._centerPoint.lng - lngDifference);
+			this._shape.setBounds(L.latLngBounds(latlng, newCorner));
+		} else {
+			// Update the shape based on the current position of this corner and the opposite point
+			this._shape.setBounds(L.latLngBounds(latlng, this._oppositeCorner));			
+		}
 
 		// Reposition the move marker
 		bounds = this._shape.getBounds();
