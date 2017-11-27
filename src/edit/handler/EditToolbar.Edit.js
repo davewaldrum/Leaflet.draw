@@ -256,7 +256,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 		}
 
 		if (layer instanceof L.Circle) {
-			layer.editing.enable();
+			layer.editing.disable();
 			layer
 				.off('editstart', this._onMarkerDragStart, this)
 				.off('edit', this._onMarkerDragEnd, this);

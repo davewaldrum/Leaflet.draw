@@ -62,6 +62,8 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		this._toggleCornerMarkers(1);
 
 		this._repositionCornerMarkers();
+		
+		this._tooltip.hide();
 
 		L.Edit.SimpleShape.prototype._onMarkerDragEnd.call(this, e);
 	},
@@ -84,6 +86,23 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		this._repositionCornerMarkers();
 
 		this._map.fire(L.Draw.Event.EDITMOVE, { layer: this._shape });
+	},
+
+	_getTooltipText: function () {
+		var shape = this._shape,
+			showArea = this._drawOptions.showArea,
+			latLngs, area, subtext;
+
+		if (shape) {
+			latLngs = this._shape._defaultShape ? this._shape._defaultShape() : this._shape.getLatLngs();
+			area = L.GeometryUtil.geodesicArea(latLngs);
+			subtext = showArea ? L.GeometryUtil.readableArea(area, this._drawOptions.metric) : ''
+		}
+
+		return {
+			text: "Hold ALT to resize from center. " + L.drawLocal.edit.handlers.edit.tooltip.text,
+			subtext: subtext
+		};
 	},
 
 	_resize: function (latlng, e) {
@@ -118,6 +137,9 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		bounds = this._shape.getBounds();
 		this._moveMarker.setLatLng(bounds.getCenter());
 
+		this._tooltip.updateContent(this._getTooltipText());
+		this._tooltip.updatePosition(bounds.getNorthEast());
+
 		this._map.fire(L.Draw.Event.EDITRESIZE, { layer: this._shape });
 	},
 
@@ -143,6 +165,8 @@ L.Edit.Rectangle = L.Edit.SimpleShape.extend({
 		for (var i = 0, l = this._resizeMarkers.length; i < l; i++) {
 			this._resizeMarkers[i].setLatLng(corners[i]);
 		}
+
+		this._tooltip.updatePosition(corners[1]);
 	}
 });
 

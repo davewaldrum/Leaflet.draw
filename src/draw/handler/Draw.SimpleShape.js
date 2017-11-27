@@ -23,10 +23,6 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 		if (this._map) {
 			this._mapDraggable = this._map.dragging.enabled();
 
-			if (this._mapDraggable) {
-				this._map.dragging.disable();
-			}
-
 			//TODO refactor: move cursor to styles
 			this._container.style.cursor = 'crosshair';
 
@@ -45,11 +41,6 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 	removeHooks: function () {
 		L.Draw.Feature.prototype.removeHooks.call(this);
 		if (this._map) {
-			if (this._mapDraggable) {
-				this._map.dragging.enable();
-			}
-
-			//TODO refactor: move cursor to styles
 			this._container.style.cursor = '';
 
 			this._map
@@ -68,6 +59,12 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 			}
 		}
 		this._isDrawing = false;
+
+		if (this._mapDraggable) {
+			this._map.dragging.enable();
+		}
+		
+		this._mapDraggable = false;
 	},
 
 	_getTooltipText: function () {
@@ -77,6 +74,14 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 	},
 
 	_onMouseDown: function (e) {
+		if (e.originalEvent && e.originalEvent.which != 1) {
+			return;
+		}
+
+		if (this._mapDraggable) {
+			this._map.dragging.disable();
+		}
+
 		this._isDrawing = true;
 		this._startLatLng = e.latlng;
 
@@ -99,6 +104,10 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 	_onMouseUp: function () {
 		if (this._shape) {
 			this._fireCreatedEvent();
+		}
+
+		if (this._mapDraggable) {
+			this._map.dragging.enable();
 		}
 
 		this.disable();
